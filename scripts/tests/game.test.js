@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { game } = require("../game")
+const { game, newGame, showScore, addTurn, lightsOn} = require("../game")
 
 beforeAll(() => {
 let fs = require("fs");
@@ -15,5 +15,62 @@ document.close();
 describe("game object contains correct keys", () => {
     test("score key exists", () => {
         expect("score" in game).toBe(true);
+    });
+    test("current game key exists", () => {
+        expect("currentGame" in game).toBe(true);
+    });
+    test("player moves key exists", () => {
+        expect("playerMoves" in game).toBe(true);
+    });
+    test("choices key exists", () => {
+        expect("choices" in game).toBe(true);
+    });
+    test("choices contains correct IDs", () => {
+        expect(game.choices).toEqual(["button1", "button2", "button3", "button4"]);
+    });
+});
+
+describe("newGame works correctly",  () => {
+    beforeAll(() => {
+        game.score = 42;
+        game.playerMoves = ["test data"]
+        game.currentGame = ["test data"]
+        document.getElementById("score").innerText = "42";
+        newGame();
+    });
+    test("should set new game score to 0", () => {
+        expect(game.score).toEqual(0);
+    });
+    test("should clear player moves array", () => {
+        expect(game.playerMoves.length).toBe(0);
+    });
+    test("should be 1 element in computer sequence array", () => {
+        expect(game.currentGame.length).toBe(1);
+    });
+    test("should display 0 for the element with an ID of score", () => {
+        expect(document.getElementById("score").innerText).toEqual(0);
+    });
+});
+
+describe("gameplay works correctly", () => {
+    beforeEach(() => {
+        game.score = 0;
+        game.currentGame = [];
+        game.playerMoves = [];
+        addTurn();
+    });
+    afterEach(() => {
+        game.score = 0;
+        game.currentGame = [];
+        game.playerMoves = [];
+    });
+    test("addTurn adds a new turn to the game", () => {
+        addTurn();
+        expect(game.currentGame.length).toBe(2);
+    });
+    test("should add correct class to button to light it up", () => {
+        let button = document.getElementById(game.currentGame[0]);
+        lightsOn(game.currentGame[0]);
+        expect(button.classList).toContain("light");
     });
 });
